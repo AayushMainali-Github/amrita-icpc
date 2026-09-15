@@ -24,16 +24,9 @@
       <header class="contest-header">
         <div class="contest-kicker">AMRITA ICPC / TRAINING ROOM</div>
         <h1>Codeforces problem scoreboard</h1>
-        <div class="contest-details">
-          <span id="problem-summary">Loading problem set...</span>
-          <span class="detail-separator">|</span>
-          <span id="user-summary">Loading users...</span>
-          <span class="detail-separator">|</span>
-          <span>practice mode</span>
-        </div>
       </header>
 
-      <section class="status-line" aria-live="polite">
+      <section class="status-line" aria-live="polite" hidden>
         <span id="status-text">Loading scoreboard configuration...</span>
         <button id="refresh-button" class="old-button" type="button" hidden>
           Refresh
@@ -43,7 +36,6 @@
       <section class="scoreboard-panel" aria-labelledby="scoreboard-title">
         <div class="panel-title-row">
           <h2 id="scoreboard-title">Standings</h2>
-          <span id="updated-at" class="updated-at"></span>
         </div>
 
         <div class="table-scroll" tabindex="0" aria-label="Scrollable scoreboard">

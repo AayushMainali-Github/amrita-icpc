@@ -105,16 +105,6 @@ h1 {
   font-weight: normal;
 }
 
-.contest-details {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.detail-separator {
-  padding: 0 8px;
-  color: #aaa;
-}
-
 .status-line {
   min-height: 34px;
   margin: 10px 0;
@@ -164,13 +154,6 @@ h2 {
   color: #333;
   font-size: 15px;
   font-weight: bold;
-}
-
-.updated-at {
-  float: right;
-  color: #777;
-  font-size: 11px;
-  line-height: 18px;
 }
 
 .table-scroll {

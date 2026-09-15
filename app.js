@@ -13,7 +13,6 @@
     problemInfo: [],
     results: new Map(),
     cacheKey: "",
-    updatedAt: null,
   };
 
   let nextApiRequestAt = 0;
@@ -21,12 +20,9 @@
   const elements = {
     body: document.getElementById("scoreboard-body"),
     head: document.getElementById("scoreboard-head"),
-    problemSummary: document.getElementById("problem-summary"),
     refreshButton: document.getElementById("refresh-button"),
     statusLine: document.querySelector(".status-line"),
     statusText: document.getElementById("status-text"),
-    updatedAt: document.getElementById("updated-at"),
-    userSummary: document.getElementById("user-summary"),
   };
 
   function wait(milliseconds) {
@@ -36,6 +32,7 @@
   function setStatus(message, isError = false) {
     elements.statusText.textContent = message;
     elements.statusLine.classList.toggle("error", isError);
+    elements.statusLine.hidden = !message;
   }
 
   function getUserHandle(user) {
@@ -191,7 +188,7 @@
     }
   }
 
-  async function fetchAllSubmissions(handle, progress) {
+  async function fetchAllSubmissions(handle, progress = () => {}) {
     const submissions = [];
     let from = 1;
 
@@ -277,8 +274,6 @@
   }
 
   function renderHeader() {
-    elements.problemSummary.textContent = `${state.problemIds.length} target problems`;
-    elements.userSummary.textContent = `${state.users.length} contestants`;
     elements.head.innerHTML = `
       <tr>
         <th class="rank-column sticky-column sticky-rank" scope="col">#</th>
@@ -391,18 +386,10 @@
       .replaceAll("'", "&#039;");
   }
 
-  function renderUpdatedAt(timestamp) {
-    elements.updatedAt.textContent = timestamp
-      ? `updated ${new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(timestamp)}`
-      : "";
-  }
-
   async function loadScoreboard(forceRefresh = false) {
     elements.refreshButton.hidden = true;
     elements.refreshButton.disabled = true;
     state.results = new Map();
-    state.updatedAt = null;
-    renderUpdatedAt(null);
 
     try {
       const config = await getConfig();
@@ -420,50 +407,19 @@
           const cachedResult = cached.results[user.username];
           if (cachedResult) state.results.set(user.username, cachedResult);
         }
-        state.updatedAt = cached.fetchedAt;
         renderBody();
-        renderUpdatedAt(state.updatedAt);
-        const cachedSolved = [...state.results.values()].reduce(
-          (total, result) => total + (result.solvedCount || 0),
-          0,
-        );
-        setStatus(
-          `Loaded cached data: ${cachedSolved} target solve${cachedSolved === 1 ? "" : "s"}. Press Refresh to query Codeforces again.`,
-        );
       } else {
-        const estimatedSeconds = state.users.length * (API_GAP_MS / 1000);
-        setStatus(
-          `Fetching Codeforces submissions for ${state.users.length} users. API pacing may take about ${Math.ceil(estimatedSeconds)} seconds.`,
-        );
         for (let index = 0; index < state.users.length; index += 1) {
           const user = state.users[index];
-          setStatus(
-            `Fetching ${index + 1}/${state.users.length}: ${user.username}. Codeforces API pacing is active.`,
-          );
-          const submissions = await fetchAllSubmissions(user.username, (from, loaded) => {
-            if (from > 1) {
-              setStatus(
-                `Fetching ${index + 1}/${state.users.length}: ${user.username} (page from ${from}; ${loaded.toLocaleString("en-IN")} submissions loaded).`,
-              );
-            }
-          });
+          const submissions = await fetchAllSubmissions(user.username);
           state.results.set(
             user.username,
             summarizeSubmissions(submissions, state.problemIds),
           );
           renderBody();
         }
-        state.updatedAt = Date.now();
         writeCache();
         renderBody();
-        renderUpdatedAt(state.updatedAt);
-        const totalSolved = [...state.results.values()].reduce(
-          (total, result) => total + result.solvedCount,
-          0,
-        );
-        setStatus(
-          `Loaded ${state.users.length} users: ${totalSolved} target solve${totalSolved === 1 ? "" : "s"}.`,
-        );
       }
     } catch (error) {
       setStatus(error.message || "Could not load the scoreboard.", true);
