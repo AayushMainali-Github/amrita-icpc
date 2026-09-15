@@ -288,13 +288,6 @@ td.solved {
   text-align: center;
 }
 
-.penalty-column,
-td.penalty {
-  width: 90px;
-  min-width: 90px;
-  text-align: right;
-}
-
 .sticky-column {
   position: sticky;
   z-index: 2;
@@ -331,10 +324,6 @@ tbody tr:hover .sticky-column {
 
 .sticky-solved {
   left: 351px;
-}
-
-.sticky-penalty {
-  left: 423px;
   border-right: 2px solid #9daab7;
 }
 
@@ -362,12 +351,6 @@ thead th.problem-heading a:hover {
 
 td.solved {
   color: #333;
-  font-weight: bold;
-}
-
-td.penalty {
-  color: #333;
-  font-family: Consolas, "Courier New", monospace;
   font-weight: bold;
 }
 

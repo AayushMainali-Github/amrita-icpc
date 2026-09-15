@@ -5,23 +5,13 @@
   const API_PAGE_SIZE = 10000;
   const API_GAP_MS = 2100;
   const CACHE_TTL_MS = 10 * 60 * 1000;
-  const CACHE_PREFIX = "amrita-icpc-scoreboard-v1:";
-  const PENALTY_MINUTES = 20;
-  const NON_PENALTY_VERDICTS = new Set([
-    "OK",
-    "COMPILATION_ERROR",
-    "TESTING",
-    "SKIPPED",
-    "CHALLENGED",
-    "DELETED",
-  ]);
+  const CACHE_PREFIX = "amrita-icpc-scoreboard-v2:";
 
   const state = {
     users: [],
     problemIds: [],
     problemInfo: [],
     results: new Map(),
-    contestStart: null,
     cacheKey: "",
     updatedAt: null,
   };
@@ -227,61 +217,24 @@
     return `${contestId}${String(index).toUpperCase()}`;
   }
 
-  function countsAsWrongAttempt(submission) {
-    return !NON_PENALTY_VERDICTS.has(submission.verdict);
-  }
-
-  function compactSubmission(submission) {
-    return {
-      id: Number(submission.id) || 0,
-      time: Number(submission.creationTimeSeconds) || 0,
-      verdict: submission.verdict || "",
-    };
-  }
-
   function summarizeSubmissions(submissions, problemIds) {
     const targetProblems = new Set(problemIds);
-    const attemptsByProblem = new Map(problemIds.map((problemId) => [problemId, []]));
     const allSolved = new Set();
+    const problems = Object.fromEntries(
+      problemIds.map((problemId) => [problemId, { solved: false }]),
+    );
 
     for (const submission of submissions) {
       const problemId = submissionProblemId(submission);
       if (submission.verdict === "OK" && problemId) allSolved.add(problemId);
-      if (targetProblems.has(problemId)) {
-        attemptsByProblem.get(problemId).push(compactSubmission(submission));
+      if (targetProblems.has(problemId) && submission.verdict === "OK") {
+        problems[problemId].solved = true;
       }
-    }
-
-    const problems = {};
-    for (const problemId of problemIds) {
-      const attempts = attemptsByProblem.get(problemId).sort((a, b) => {
-        if (a.time !== b.time) return a.time - b.time;
-        return a.id - b.id;
-      });
-      const acceptedIndex = attempts.findIndex((attempt) => attempt.verdict === "OK");
-
-      if (acceptedIndex === -1) {
-        problems[problemId] = {
-          solved: false,
-          acceptedAt: null,
-          wrongAttempts: 0,
-        };
-        continue;
-      }
-
-      const accepted = attempts[acceptedIndex];
-      const wrongAttempts = attempts
-        .slice(0, acceptedIndex)
-        .filter(countsAsWrongAttempt).length;
-      problems[problemId] = {
-        solved: true,
-        acceptedAt: accepted.time,
-        wrongAttempts,
-      };
     }
 
     return {
       allSolvedCount: allSolved.size,
+      solvedCount: Object.values(problems).filter((problem) => problem.solved).length,
       problems,
     };
   }
@@ -332,7 +285,6 @@
         <th class="name-column sticky-column sticky-name" scope="col">Name</th>
         <th class="handle-column sticky-column sticky-handle" scope="col">Codeforces username</th>
         <th class="solved-column sticky-column sticky-solved" scope="col">Solved</th>
-        <th class="penalty-column sticky-column sticky-penalty" scope="col">Penalty</th>
         ${state.problemInfo
           .map(
             (problem) => `
@@ -350,58 +302,10 @@
       loading: true,
       allSolvedCount: 0,
       solvedCount: 0,
-      penalty: null,
       problems: Object.fromEntries(
         state.problemIds.map((problemId) => [problemId, { solved: false }]),
       ),
     };
-  }
-
-  function formatNumber(value) {
-    return new Intl.NumberFormat("en-IN").format(value);
-  }
-
-  function formatDuration(totalMinutes) {
-    const minutes = Math.max(0, Math.floor(totalMinutes));
-    const days = Math.floor(minutes / 1440);
-    const hours = Math.floor((minutes % 1440) / 60);
-    const remainder = minutes % 60;
-    const clock = `${String(hours).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
-    return days ? `${days}d ${clock}` : `${hours}:${String(remainder).padStart(2, "0")}`;
-  }
-
-  function formatDate(seconds) {
-    if (!seconds) return "unknown date";
-    return new Intl.DateTimeFormat("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(seconds * 1000));
-  }
-
-  function calculateScores() {
-    const acceptedTimes = [];
-    for (const result of state.results.values()) {
-      for (const problem of Object.values(result.problems || {})) {
-        if (problem.solved && problem.acceptedAt) acceptedTimes.push(problem.acceptedAt);
-      }
-    }
-    state.contestStart = acceptedTimes.length ? Math.min(...acceptedTimes) : null;
-
-    for (const result of state.results.values()) {
-      let solvedCount = 0;
-      let penalty = 0;
-      for (const problem of Object.values(result.problems || {})) {
-        if (!problem.solved) continue;
-        solvedCount += 1;
-        const elapsedMinutes = state.contestStart
-          ? Math.floor((problem.acceptedAt - state.contestStart) / 60)
-          : 0;
-        penalty += elapsedMinutes + problem.wrongAttempts * PENALTY_MINUTES;
-      }
-      result.solvedCount = solvedCount;
-      result.penalty = penalty;
-      result.loading = false;
-    }
   }
 
   function compareResults(left, right) {
@@ -409,10 +313,6 @@
     const rightResult = state.results.get(right.username) || emptyResult();
     if (rightResult.solvedCount !== leftResult.solvedCount) {
       return rightResult.solvedCount - leftResult.solvedCount;
-    }
-    if ((leftResult.penalty ?? Number.MAX_SAFE_INTEGER) !== (rightResult.penalty ?? Number.MAX_SAFE_INTEGER)) {
-      return (leftResult.penalty ?? Number.MAX_SAFE_INTEGER) -
-        (rightResult.penalty ?? Number.MAX_SAFE_INTEGER);
     }
     return left.name.localeCompare(right.name);
   }
@@ -424,17 +324,14 @@
   function formatRankedRows() {
     const rankedUsers = getRankedUsers();
     let previousSolved = null;
-    let previousPenalty = null;
     let previousRank = 0;
 
     return rankedUsers.map((user, index) => {
       const result = state.results.get(user.username) || emptyResult();
       const solved = result.solvedCount || 0;
-      const penalty = result.penalty ?? null;
-      if (solved !== previousSolved || penalty !== previousPenalty) {
+      if (solved !== previousSolved) {
         previousRank = index + 1;
         previousSolved = solved;
-        previousPenalty = penalty;
       }
       return { user, result, rank: previousRank };
     });
@@ -447,7 +344,6 @@
         const problemCells = state.problemIds
           .map((problemId) => renderProblemCell(result, problemId))
           .join("");
-        const penalty = result.loading ? "..." : formatNumber(result.penalty || 0);
         const solved = result.loading ? "..." : `${result.solvedCount}/${state.problemIds.length}`;
         return `
           <tr>
@@ -457,7 +353,6 @@
               <a href="https://codeforces.com/profile/${encodeURIComponent(user.username)}" target="_blank" rel="noreferrer">${escapeHtml(user.username)}</a>
             </td>
             <td class="solved sticky-column sticky-solved">${solved}</td>
-            <td class="penalty sticky-column sticky-penalty">${penalty}</td>
             ${problemCells}
           </tr>`;
       })
@@ -480,16 +375,10 @@
           <span class="cell-meta">not solved</span>
         </td>`;
     }
-    const elapsedMinutes = state.contestStart
-      ? Math.floor((problem.acceptedAt - state.contestStart) / 60)
-      : 0;
-    const wrongLabel = problem.wrongAttempts
-      ? `+${problem.wrongAttempts * PENALTY_MINUTES}m`
-      : "no wrong";
     return `
-      <td class="problem-cell accepted" title="Accepted ${formatDate(problem.acceptedAt)}; ${problem.wrongAttempts} counted wrong attempt(s)">
+      <td class="problem-cell accepted" title="Solved">
         <span class="cell-state">+</span>
-        <span class="cell-meta">${formatDuration(elapsedMinutes)} / ${wrongLabel}</span>
+        <span class="cell-meta">accepted</span>
       </td>`;
   }
 
@@ -512,7 +401,6 @@
     elements.refreshButton.hidden = true;
     elements.refreshButton.disabled = true;
     state.results = new Map();
-    state.contestStart = null;
     state.updatedAt = null;
     renderUpdatedAt(null);
 
@@ -532,7 +420,6 @@
           const cachedResult = cached.results[user.username];
           if (cachedResult) state.results.set(user.username, cachedResult);
         }
-        calculateScores();
         state.updatedAt = cached.fetchedAt;
         renderBody();
         renderUpdatedAt(state.updatedAt);
@@ -566,7 +453,6 @@
           );
           renderBody();
         }
-        calculateScores();
         state.updatedAt = Date.now();
         writeCache();
         renderBody();

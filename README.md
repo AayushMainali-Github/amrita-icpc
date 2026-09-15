@@ -2,10 +2,10 @@
 
 Small static scoreboard for the users in `usernames.json` and the target problems in `problems.json`.
 
-The page calls the public Codeforces `user.status` API, finds the first accepted submission for each target problem, and ranks users by:
+The page calls the public Codeforces `user.status` API, finds accepted submissions for each target problem, and ranks users by:
 
 1. target problems solved, descending;
-2. Codeforces-style penalty, ascending: elapsed minutes from the earliest accepted target submission in the table plus 20 minutes per counted wrong attempt before acceptance.
+2. equal solved counts share the same rank.
 
 Results are cached in `localStorage` for ten minutes. The Refresh button bypasses that cache.
 
