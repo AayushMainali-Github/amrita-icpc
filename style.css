@@ -1,0 +1,430 @@
+:root {
+  --page-gray: #e9e9e9;
+  --panel-border: #b9c2cc;
+  --dark-blue: #2d547e;
+  --header-blue: #dce8f4;
+  --header-blue-dark: #c4d7ea;
+  --text: #222;
+  --muted: #666;
+  --green: #147b29;
+  --red: #a02222;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 900px;
+  background: var(--page-gray);
+  color: var(--text);
+  font: 12px Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: #0645ad;
+}
+
+.top-bar {
+  min-width: 900px;
+  background: #333;
+  border-bottom: 1px solid #1f1f1f;
+  color: #eee;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.top-bar-inner {
+  width: calc(100% - 24px);
+  min-width: 876px;
+  margin: 0 auto;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  letter-spacing: 0.1px;
+}
+
+.brand {
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  letter-spacing: 0.4px;
+  text-decoration: none;
+}
+
+.top-bar-divider {
+  color: #999;
+}
+
+.top-bar-source {
+  margin-left: auto;
+  color: #bbb;
+  font-size: 11px;
+}
+
+.page-shell {
+  width: calc(100% - 24px);
+  min-width: 876px;
+  margin: 12px auto 24px;
+}
+
+.contest-header,
+.scoreboard-panel {
+  border: 1px solid var(--panel-border);
+  background: #fff;
+}
+
+.contest-header {
+  padding: 14px 16px 12px;
+}
+
+.contest-kicker {
+  color: var(--dark-blue);
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin: 4px 0 9px;
+  color: #333;
+  font-size: 21px;
+  font-weight: normal;
+}
+
+.contest-details {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.detail-separator {
+  padding: 0 8px;
+  color: #aaa;
+}
+
+.status-line {
+  min-height: 34px;
+  margin: 10px 0;
+  padding: 8px 10px;
+  border: 1px solid #d3c57d;
+  background: #fffbdc;
+  color: #514b20;
+  line-height: 16px;
+}
+
+.status-line.error {
+  border-color: #d49a9a;
+  background: #fff0f0;
+  color: #7d1b1b;
+}
+
+.old-button {
+  float: right;
+  margin: -2px 0 -2px 12px;
+  padding: 2px 10px;
+  border: 1px solid #9ba5af;
+  border-radius: 2px;
+  background: linear-gradient(#fff, #e2e5e8);
+  color: #222;
+  cursor: pointer;
+  font: 11px Arial, Helvetica, sans-serif;
+}
+
+.old-button:hover {
+  background: linear-gradient(#fff, #d5dbe0);
+}
+
+.scoreboard-panel {
+  padding: 0;
+}
+
+.panel-title-row {
+  min-height: 38px;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--panel-border);
+  background: linear-gradient(#f7f8f9, #eceff2);
+}
+
+h2 {
+  display: inline;
+  margin: 0;
+  color: #333;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.updated-at {
+  float: right;
+  color: #777;
+  font-size: 11px;
+  line-height: 18px;
+}
+
+.table-scroll {
+  max-height: calc(100vh - 260px);
+  min-height: 220px;
+  overflow: auto;
+  outline: none;
+}
+
+.table-scroll:focus {
+  box-shadow: inset 0 0 0 2px rgba(45, 84, 126, 0.25);
+}
+
+table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  table-layout: fixed;
+}
+
+caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+th,
+td {
+  border-right: 1px solid #cbd1d7;
+  border-bottom: 1px solid #cbd1d7;
+  white-space: nowrap;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 43px;
+  padding: 4px 7px;
+  background: var(--header-blue);
+  color: #274b70;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: middle;
+}
+
+thead th:first-child {
+  border-left: 0;
+}
+
+thead th.problem-heading {
+  width: 83px;
+  min-width: 83px;
+}
+
+thead th.problem-heading a {
+  display: block;
+  color: #174e88;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+thead th.problem-heading small {
+  display: block;
+  margin-top: 2px;
+  color: #6d8296;
+  font-size: 9px;
+  font-weight: normal;
+}
+
+tbody td {
+  height: 52px;
+  padding: 5px 7px;
+  background: #fff;
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) td {
+  background: #f8f9fa;
+}
+
+tbody tr:hover td {
+  background: #fffde8;
+}
+
+.rank-column,
+td.rank {
+  width: 46px;
+  min-width: 46px;
+  text-align: center;
+}
+
+.name-column,
+td.name {
+  width: 155px;
+  min-width: 155px;
+}
+
+.handle-column,
+td.handle {
+  width: 150px;
+  min-width: 150px;
+}
+
+.solved-column,
+td.solved {
+  width: 72px;
+  min-width: 72px;
+  text-align: center;
+}
+
+.penalty-column,
+td.penalty {
+  width: 90px;
+  min-width: 90px;
+  text-align: right;
+}
+
+.sticky-column {
+  position: sticky;
+  z-index: 2;
+}
+
+thead .sticky-column {
+  z-index: 5;
+  background: var(--header-blue-dark);
+}
+
+tbody tr:nth-child(odd) .sticky-column {
+  background: #fff;
+}
+
+tbody tr:nth-child(even) .sticky-column {
+  background: #f8f9fa;
+}
+
+tbody tr:hover .sticky-column {
+  background: #fffde8;
+}
+
+.sticky-rank {
+  left: 0;
+}
+
+.sticky-name {
+  left: 46px;
+}
+
+.sticky-handle {
+  left: 201px;
+}
+
+.sticky-solved {
+  left: 351px;
+}
+
+.sticky-penalty {
+  left: 423px;
+  border-right: 2px solid #9daab7;
+}
+
+td.rank {
+  color: #555;
+  font-weight: bold;
+}
+
+td.name {
+  overflow: hidden;
+  color: #222;
+  font-weight: bold;
+  text-overflow: ellipsis;
+}
+
+td.handle a {
+  color: #0645ad;
+  text-decoration: none;
+}
+
+td.handle a:hover,
+thead th.problem-heading a:hover {
+  text-decoration: underline;
+}
+
+td.solved {
+  color: #333;
+  font-weight: bold;
+}
+
+td.penalty {
+  color: #333;
+  font-family: Consolas, "Courier New", monospace;
+  font-weight: bold;
+}
+
+td.problem-cell {
+  width: 83px;
+  min-width: 83px;
+  padding: 3px 4px;
+  text-align: center;
+}
+
+.problem-cell .cell-state {
+  display: block;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 18px;
+}
+
+.problem-cell.accepted .cell-state {
+  color: var(--green);
+}
+
+.problem-cell.unsolved .cell-state {
+  color: #999;
+  font-weight: normal;
+}
+
+.problem-cell .cell-meta {
+  display: block;
+  margin-top: 2px;
+  color: #777;
+  font-size: 9px;
+  line-height: 11px;
+}
+
+.problem-cell.accepted .cell-meta {
+  color: #42714b;
+}
+
+.problem-cell.loading .cell-state {
+  color: #aaa;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.page-footer {
+  padding: 10px 3px 0;
+  color: #666;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.page-footer p {
+  margin-bottom: 4px;
+}
+
+@media (max-height: 650px) {
+  .table-scroll {
+    max-height: calc(100vh - 230px);
+  }
+}

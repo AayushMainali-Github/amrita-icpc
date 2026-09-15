@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="AMRITA ICPC Codeforces practice scoreboard"
+    />
+    <title>AMRITA ICPC :: Codeforces scoreboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="top-bar-inner">
+        <a class="brand" href="./">AMRITA ICPC</a>
+        <span class="top-bar-divider">/</span>
+        <span>practice scoreboard</span>
+        <span class="top-bar-source">data: Codeforces API</span>
+      </div>
+    </div>
+
+    <main class="page-shell">
+      <header class="contest-header">
+        <div class="contest-kicker">AMRITA ICPC / TRAINING ROOM</div>
+        <h1>Codeforces problem scoreboard</h1>
+        <div class="contest-details">
+          <span id="problem-summary">Loading problem set...</span>
+          <span class="detail-separator">|</span>
+          <span id="user-summary">Loading users...</span>
+          <span class="detail-separator">|</span>
+          <span>practice mode</span>
+        </div>
+      </header>
+
+      <section class="status-line" aria-live="polite">
+        <span id="status-text">Loading scoreboard configuration...</span>
+        <button id="refresh-button" class="old-button" type="button" hidden>
+          Refresh
+        </button>
+      </section>
+
+      <section class="scoreboard-panel" aria-labelledby="scoreboard-title">
+        <div class="panel-title-row">
+          <h2 id="scoreboard-title">Standings</h2>
+          <span id="updated-at" class="updated-at"></span>
+        </div>
+
+        <div class="table-scroll" tabindex="0" aria-label="Scrollable scoreboard">
+          <table id="scoreboard">
+            <caption>
+              Solved problems are marked with a plus. Hover a cell for submission details.
+            </caption>
+            <thead id="scoreboard-head"></thead>
+            <tbody id="scoreboard-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="page-footer">
+        <p>
+          Ranking: solved target problems, then Codeforces-style penalty. Each accepted
+          problem adds its elapsed contest minutes; each counted wrong attempt before
+          acceptance adds 20 minutes.
+        </p>
+        <p>
+          The synthetic contest starts at the earliest accepted target submission found
+          in this scoreboard. Source:
+          <a href="https://codeforces.com/apiHelp/" target="_blank" rel="noreferrer"
+            >Codeforces API documentation</a
+          >.
+        </p>
+      </footer>
+    </main>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
